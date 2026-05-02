@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1206,20 +1205,18 @@ async function sendMessage() {
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': 'YOUR_ACTUAL_API_KEY_HERE', // Add this line
-    'anthropic-version': '2023-06-01',        // Add this line
-    'anthropic-dangerous-direct-browser-access': 'true',
-  },
-  body: JSON.stringify({
-    model: 'claude-3-5-sonnet-20240620', // Note: Ensure the model name is correct
-    max_tokens: 1000,
-    system: buildSystemPrompt(),
-    messages: conversationHistory
-  })
-});
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: conversationHistory
+      })
+    });
 
     removeTyping();
 
@@ -1340,18 +1337,1346 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── INIT ──
 initDashboard(); chartsInit['dashboard'] = true;
 </script>
-  <script src="config.js"></script>
-  
-<script src="script.js"></script>
-  // Inside your script.js
-const response = await fetch('https://api.anthropic.com/v1/messages', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': CONFIG.ANTHROPIC_API_KEY, // Use the variable here
-    'anthropic-version': '2023-06-01',
-    'anthropic-dangerous-direct-browser-access': 'true',
-  },
-  // ... rest of your code
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydrous Tech – Water Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #050d12;
+    --surface: #0a1a22;
+    --surface2: #0f2330;
+    --border: #1a3545;
+    --accent: #00d4ff;
+    --accent2: #00ff9d;
+    --warn: #ffb800;
+    --danger: #ff4444;
+    --text: #e8f4f8;
+    --muted: #5a8a9f;
+    --safe: #00ff9d;
+    --caution: #ffb800;
+    --critical: #ff4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 64px;
+    background: rgba(5,13,18,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 0.7rem;
+    cursor: pointer; text-decoration: none;
+  }
+  .nav-logo img { width: 40px; height: 40px; border-radius: 50%; }
+  .nav-logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.2rem;
+    letter-spacing: -0.03em;
+  }
+  .nav-logo-text span:first-child { color: var(--accent); }
+  .nav-logo-text span:last-child { color: var(--text); }
+  .nav-links { display: flex; gap: 0.25rem; }
+  .nav-link {
+    padding: 0.4rem 1rem; background: none; border: none;
+    color: var(--muted); font-family: 'DM Mono', monospace;
+    font-size: 0.78rem; letter-spacing: 0.05em; cursor: pointer;
+    border-radius: 6px; transition: all 0.2s; text-transform: uppercase;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--accent); background: rgba(0,212,255,0.08); }
+  .nav-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; color: var(--muted); }
+  .pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+
+  .page { display: none; min-height: 100vh; padding-top: 64px; }
+  .page.active { display: block; }
+
+  /* DASHBOARD */
+  .hero { position: relative; padding: 4rem 2.5rem 2.5rem; overflow: hidden; }
+  .hero-grid-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-glow {
+    position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.12) 0%, transparent 70%); z-index: 0;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 900px; }
+  .eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+  }
+  .eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--accent); }
+  h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.2rem,4.5vw,3.5rem); font-weight: 800; line-height: 1.05; letter-spacing: -0.04em; margin-bottom: 1rem; }
+  h1 em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--accent); font-weight: 400; }
+  .hero-sub { font-size: 0.88rem; color: var(--muted); line-height: 1.7; max-width: 480px; margin-bottom: 1.5rem; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; padding: 0 2.5rem 2rem; }
+  .kpi-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.4rem; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.2s;
+  }
+  .kpi-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .kpi-card::before { content:''; position:absolute;top:0;left:0;right:0;height:2px; background:linear-gradient(90deg,var(--accent),transparent); }
+  .kpi-label { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+  .kpi-value { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 0.3rem; }
+  .kpi-sub { font-size: 0.68rem; color: var(--muted); }
+  .kpi-badge { position:absolute;top:1rem;right:1rem;font-size:0.65rem;padding:0.2rem 0.5rem;border-radius:20px;font-weight:500; }
+  .badge-safe { background:rgba(0,255,157,.15);color:var(--safe); }
+  .badge-warn { background:rgba(255,184,0,.15);color:var(--warn); }
+  .badge-danger { background:rgba(255,68,68,.15);color:var(--danger); }
+
+  .section-header { padding: 1.5rem 2.5rem 0.75rem; display:flex;align-items:center;justify-content:space-between; }
+  .section-title { font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700; }
+  .section-meta { font-size:0.7rem;color:var(--muted);letter-spacing:.05em; }
+
+  .charts-grid { display:grid;grid-template-columns:2fr 1fr;gap:1rem;padding:0 2.5rem 2rem; }
+  .chart-card { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem; }
+  .chart-card h3 { font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:600;margin-bottom:1rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase; }
+  .chart-wrap { position:relative;height:260px; }
+  .divider { height:1px;background:var(--border);margin:0 2.5rem; }
+
+  .wai-gauge { display:flex;flex-direction:column;align-items:center;justify-content:center;height:260px;gap:.4rem; }
+  .gauge-ring { position:relative;width:150px;height:150px; }
+  .gauge-svg { width:100%;height:100%;transform:rotate(-90deg); }
+  .gauge-track { fill:none;stroke:var(--border);stroke-width:12; }
+  .gauge-fill { fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); }
+  .gauge-center { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center; }
+  .gauge-number { font-family:'Syne',sans-serif;font-size:2rem;font-weight:800; }
+  .gauge-unit { font-size:0.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase; }
+  .wai-label { font-size:0.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase; }
+  .wai-status { font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:600; }
+  .wai-breakdown { margin-top:.75rem; width:180px; }
+  .breakdown-row { display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem;font-size:.7rem; }
+  .breakdown-label { width:65px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;flex-shrink:0; }
+  .breakdown-bar-wrap { flex:1; }
+  .breakdown-bar { height:4px;border-radius:2px;background:var(--border);position:relative;overflow:hidden; }
+  .breakdown-bar-fill { position:absolute;top:0;left:0;height:100%;border-radius:2px; }
+  .breakdown-val { width:35px;text-align:right;color:var(--text); }
+
+  .trend-table { width:100%;border-collapse:collapse;font-size:.74rem; }
+  .trend-table th { text-align:left;color:var(--muted);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;padding:0 0 .6rem;border-bottom:1px solid var(--border); }
+  .trend-table td { padding:.5rem 0;border-bottom:1px solid rgba(26,53,69,.5); }
+
+  /* ── MAP PAGE (Google Maps Style) ── */
+  #page-map { padding-top: 64px; }
+  .gmap-container {
+    position: relative; width: 100%; height: calc(100vh - 64px); overflow: hidden;
+    background: #1a3a4f;
+  }
+
+  .gmap-base {
+    position: absolute; inset: 0;
+    background-color: #1e3a52;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .gmap-water {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(to right, #0d2840 0%, #0d2840 18%, transparent 30%),
+      radial-gradient(ellipse at 12% 50%, #0a2035 0%, transparent 25%);
+  }
+
+  .gmap-land {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 58% 35%, rgba(38,60,42,0.55) 0%, transparent 35%),
+      radial-gradient(ellipse at 54% 58%, rgba(35,55,38,0.45) 0%, transparent 30%),
+      radial-gradient(ellipse at 50% 75%, rgba(55,47,35,0.3) 0%, transparent 28%),
+      radial-gradient(ellipse at 62% 22%, rgba(42,65,46,0.4) 0%, transparent 22%);
+  }
+
+  .gmap-roads {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,230,150,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,230,150,0.04) 1px, transparent 1px);
+    background-size: 120px 120px;
+  }
+
+  .gmap-vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 45%, rgba(5,13,18,0.55) 100%);
+    z-index: 2; pointer-events: none;
+  }
+
+  #map-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; }
+
+  .gmap-searchbar {
+    position: absolute; top: 14px; left: 14px; z-index: 20;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .gmap-search-wrap {
+    position: relative; width: 300px;
+    background: white; border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+    display: flex; align-items: center;
+  }
+  .gmap-search-icon {
+    position: absolute; left: 12px; color: #5f6368; font-size: 16px; pointer-events: none;
+  }
+  .gmap-search-input {
+    width: 100%; height: 44px; border: none; background: transparent;
+    padding: 0 12px 0 38px; font-family: Arial, sans-serif; font-size: 14px;
+    color: #202124; outline: none; border-radius: 8px;
+  }
+  .gmap-search-input::placeholder { color: #9aa0a6; }
+
+  .gmap-layers {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    z-index: 20; display: flex; gap: 6px;
+  }
+  .layer-pill {
+    padding: 6px 14px; background: white; border: none; border-radius: 20px;
+    font-family: Arial, sans-serif; font-size: 12px; font-weight: 600;
+    color: #5f6368; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    transition: all 0.15s;
+  }
+  .layer-pill:hover { background: #f1f3f4; }
+  .layer-pill.active { background: #1a73e8; color: white; }
+
+  .gmap-type {
+    position: absolute; top: 14px; right: 14px; z-index: 20;
+    background: white; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    overflow: hidden; display: flex;
+  }
+  .type-btn {
+    padding: 8px 12px; border: none; background: white;
+    font-family: Arial, sans-serif; font-size: 11px; font-weight: 600;
+    color: #5f6368; cursor: pointer; border-right: 1px solid #e0e0e0;
+    transition: background 0.15s;
+  }
+  .type-btn:last-child { border-right: none; }
+  .type-btn:hover { background: #f8f9fa; }
+  .type-btn.active { color: #1a73e8; background: #e8f0fe; }
+
+  .gmap-zoom {
+    position: absolute; right: 14px; bottom: 130px; z-index: 20;
+    background: white; border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.45); overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .zoom-btn {
+    width: 42px; height: 42px; border: none; background: white;
+    font-size: 20px; color: #5f6368; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid #e0e0e0; transition: background 0.15s; font-weight: 300;
+  }
+  .zoom-btn:last-child { border-bottom: none; }
+  .zoom-btn:hover { background: #f8f9fa; }
+
+  .gmap-compass {
+    position: absolute; right: 14px; bottom: 230px; z-index: 20;
+    width: 42px; height: 42px; background: white; border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; user-select: none; font-size: 18px;
+  }
+
+  .gmap-scale {
+    position: absolute; left: 14px; bottom: 20px; z-index: 20;
+  }
+  .scale-bar { height: 3px; width: 80px; background: white; border: 1px solid rgba(0,0,0,0.3); border-top: none; }
+  .scale-label { font-size: 10px; color: rgba(255,255,255,0.85); font-family: Arial,sans-serif; margin-top: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+
+  .gmap-attrib {
+    position: absolute; right: 14px; bottom: 6px; z-index: 20;
+    font-size: 10px; color: rgba(255,255,255,0.55); font-family: Arial, sans-serif;
+  }
+
+  .gmap-chips {
+    position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+    z-index: 20; display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto;
+    padding: 0 12px; max-width: calc(100% - 120px);
+  }
+  .region-chip {
+    flex-shrink: 0; background: white; border-radius: 20px; padding: 5px 12px;
+    font-family: Arial, sans-serif; font-size: 11px; font-weight: 600; color: #202124;
+    cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+    white-space: nowrap; border: 2px solid transparent;
+  }
+  .region-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.45); }
+  .region-chip.active { border-color: #1a73e8; color: #1a73e8; }
+  .chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .gmap-panel {
+    position: absolute; top: 0; left: 0; width: 380px; height: 100%;
+    background: #202124; z-index: 30;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .gmap-panel.open { transform: translateX(0); }
+  .panel-header {
+    background: #1a73e8; padding: 1.2rem 1.4rem;
+    position: relative; flex-shrink: 0;
+  }
+  .panel-close {
+    position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+    border-radius: 50%; background: rgba(255,255,255,.2); border: none;
+    cursor: pointer; color: white; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; transition: background .15s;
+  }
+  .panel-close:hover { background: rgba(255,255,255,.35); }
+  .panel-region-name { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 800; color: white; margin-bottom: 2px; }
+  .panel-region-sub { font-size: 0.7rem; color: rgba(255,255,255,.75); font-family: 'DM Mono', monospace; }
+  .panel-wai-chip {
+    display: inline-block; margin-top: 8px; padding: 3px 10px;
+    border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+    background: rgba(255,255,255,.2); color: white; letter-spacing: .05em;
+  }
+  .panel-body { flex: 1; overflow-y: auto; padding: 0; }
+  .panel-body::-webkit-scrollbar { width: 4px; }
+  .panel-body::-webkit-scrollbar-thumb { background: #3c4043; border-radius: 2px; }
+  .panel-wai-section {
+    padding: 1.4rem 1.4rem; background: #2d2d30;
+    border-bottom: 1px solid #3c4043;
+    display: flex; align-items: center; gap: 1.25rem;
+  }
+  .panel-wai-big { font-family: 'Syne', sans-serif; font-size: 3.8rem; font-weight: 800; line-height: 1; }
+  .panel-wai-meta { flex: 1; }
+  .panel-wai-label { font-size: .63rem; color: #9aa0a6; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 3px; }
+  .panel-wai-status { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+  .panel-stats-row { display: grid; grid-template-columns: repeat(3,1fr); border-bottom: 1px solid #3c4043; }
+  .panel-stat { padding: .9rem .7rem; text-align: center; border-right: 1px solid #3c4043; }
+  .panel-stat:last-child { border-right: none; }
+  .panel-stat-val { font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#e8eaed;margin-bottom:3px; }
+  .panel-stat-label { font-size:.6rem;color:#9aa0a6;text-transform:uppercase;letter-spacing:.08em; }
+  .panel-metrics { padding: 1.1rem 1.4rem; border-bottom: 1px solid #3c4043; }
+  .panel-section-title { font-size:.63rem;color:#9aa0a6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.9rem;font-family:'DM Mono',monospace; }
+  .pm-row { display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem; }
+  .pm-icon { font-size:.95rem;width:20px;flex-shrink:0; }
+  .pm-info { flex:1; }
+  .pm-label { font-size:.67rem;color:#9aa0a6;margin-bottom:3px;display:flex;justify-content:space-between; }
+  .pm-bar { height:6px;border-radius:3px;background:#3c4043;position:relative;overflow:hidden; }
+  .pm-bar-fill { position:absolute;top:0;left:0;height:100%;border-radius:3px;transition:width .8s ease; }
+  .panel-prediction { padding: 1.1rem 1.4rem; border-bottom: 1px solid #3c4043; }
+  .pred-timeline { display:flex;justify-content:space-between;margin-top:.7rem; }
+  .pred-tick { text-align:center; }
+  .pred-tick-val { font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:2px; }
+  .pred-tick-label { font-size:.6rem;color:#9aa0a6;text-transform:uppercase;letter-spacing:.05em; }
+  .panel-health { margin: 1.1rem 1.4rem; background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);border-radius:10px;padding:.9rem;font-size:.76rem;line-height:1.7;color:#ffaaaa; }
+  .panel-health.warn { background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.3);color:#ffe5a0; }
+  .panel-health strong { font-weight:600; }
+  .panel-actions { padding: 1.1rem 1.4rem; display:flex;gap:.5rem; }
+  .panel-action-btn { flex:1;padding:.55rem;border-radius:8px;border:1px solid #3c4043;background:#2d2d30;color:#e8eaed;font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;text-align:center;transition:background .15s; }
+  .panel-action-btn:hover { background:#3c4043; }
+  .panel-action-btn span { display:block;font-size:1rem;margin-bottom:2px; }
+
+  .map-tooltip {
+    position: absolute; z-index: 25; pointer-events: none;
+    background: rgba(32,33,36,0.95); border: 1px solid #3c4043;
+    border-radius: 8px; padding: 10px 14px; min-width: 180px;
+    opacity: 0; transition: opacity 0.15s;
+    backdrop-filter: blur(10px);
+  }
+  .map-tooltip.visible { opacity: 1; }
+  .tt-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .88rem; margin-bottom: 5px; }
+  .tt-row { display: flex; justify-content: space-between; font-size: .72rem; color: #9aa0a6; margin-bottom: 2px; }
+  .tt-val { color: white; font-weight: 600; }
+
+  /* ANALYTICS */
+  .analytics-page { padding: 80px 2.5rem 2.5rem; }
+  .analytics-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem; }
+  .analytics-full { margin-bottom:1.5rem; }
+  .year-selector { display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem; }
+  .year-btn { padding:.3rem .75rem;border:1px solid var(--border);background:none;color:var(--muted);border-radius:20px;font-family:'DM Mono',monospace;font-size:.72rem;cursor:pointer;transition:all .2s; }
+  .year-btn:hover, .year-btn.active { border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.08); }
+
+  /* CHAT */
+  .chat-page { padding: 80px 2.5rem 2.5rem; display:grid;grid-template-columns:1fr 320px;gap:1.5rem;min-height:calc(100vh - 0px); }
+  .chat-main { background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;height:calc(100vh - 100px); }
+  .chat-header { padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem; }
+  .chat-avatar { width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0; }
+  .chat-header-info h3 { font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700; }
+  .chat-header-info p { font-size:.67rem;color:var(--muted); }
+  .chat-messages { flex:1;overflow-y:auto;padding:1.4rem;display:flex;flex-direction:column;gap:1rem;scroll-behavior:smooth; }
+  .chat-messages::-webkit-scrollbar { width:4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background:var(--border);border-radius:2px; }
+  .msg { display:flex;gap:.75rem;animation:msgIn .3s ease; }
+  @keyframes msgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .msg.user { flex-direction:row-reverse; }
+  .msg-avatar { width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0; }
+  .msg.bot .msg-avatar { background:linear-gradient(135deg,rgba(0,212,255,.3),rgba(0,255,157,.3));border-color:var(--accent); }
+  .msg-bubble { max-width:75%;padding:.7rem .95rem;border-radius:12px;font-size:.82rem;line-height:1.65; }
+  .msg.bot .msg-bubble { background:var(--surface2);border:1px solid var(--border);border-top-left-radius:4px;color:var(--text); }
+  .msg.user .msg-bubble { background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,255,157,.15));border:1px solid rgba(0,212,255,.3);border-top-right-radius:4px;color:var(--text); }
+  .msg-bubble strong { color:var(--accent); }
+  .typing-indicator { display:flex;gap:4px;align-items:center;padding:.7rem .95rem; }
+  .typing-dot { width:6px;height:6px;border-radius:50%;background:var(--muted);animation:typingBounce 1.2s infinite; }
+  .typing-dot:nth-child(2){animation-delay:.2s} .typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes typingBounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  .chat-input-area { padding:.95rem 1.4rem;border-top:1px solid var(--border);display:flex;gap:.75rem;align-items:flex-end; }
+  .chat-input { flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.7rem .95rem;color:var(--text);font-family:'DM Mono',monospace;font-size:.82rem;resize:none;outline:none;transition:border-color .2s;line-height:1.5;min-height:44px;max-height:120px; }
+  .chat-input:focus { border-color:var(--accent); }
+  .chat-input::placeholder { color:var(--muted); }
+  .chat-send-btn { width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s,transform .1s;flex-shrink:0; }
+  .chat-send-btn:hover { opacity:.85;transform:scale(1.05); }
+  .chat-send-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .quick-prompts { background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.4rem;height:calc(100vh - 100px);overflow-y:auto; }
+  .quick-prompts h3 { font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:.9rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase; }
+  .prompt-chip { display:block;width:100%;text-align:left;padding:.65rem .85rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:.74rem;cursor:pointer;margin-bottom:.45rem;line-height:1.5;transition:all .2s; }
+  .prompt-chip:hover { border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.05); }
+  .prompt-chip:disabled { opacity:0.5; cursor:not-allowed; }
+  .prompt-section-label { font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin:.9rem 0 .45rem; }
+
+  .page-title-block { padding: 2rem 2.5rem 0; margin-bottom:1.5rem; }
+  .page-title-block h2 { font-family:'Syne',sans-serif;font-size:clamp(1.5rem,3vw,2rem);font-weight:800;letter-spacing:-.03em;line-height:1.1; }
+  .page-title-block p { color:var(--muted);font-size:.8rem;margin-top:.35rem;line-height:1.6; }
+
+  /* Error message styling */
+  .msg-bubble.error { border-color: rgba(255,68,68,.4); background: rgba(255,68,68,.08); }
+  .msg-bubble.error .error-icon { color: var(--danger); font-size: 1rem; margin-right: .4rem; }
+
+  ::-webkit-scrollbar { width:5px;height:5px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border);border-radius:3px; }
+
+  @media (max-width:900px) {
+    .kpi-row { grid-template-columns:repeat(2,1fr); }
+    .charts-grid { grid-template-columns:1fr; }
+    .chat-page { grid-template-columns:1fr; }
+    .analytics-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('dashboard')">
+    <img src="data:image/png;base64,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" alt="Hydrous Tech Logo">
+    <div class="nav-logo-text"><span>Hydrous</span><span>Tech</span></div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="nav-link" onclick="showPage('map')">Region Map</button>
+    <button class="nav-link" onclick="showPage('analytics')">Analytics</button>
+    <button class="nav-link" onclick="showPage('chat')">AI Advisor</button>
+  </div>
+  <div class="nav-status">
+    <div class="pulse-dot"></div>
+    LIVE · <span id="live-time"></span>
+  </div>
+</nav>
+
+<!-- PAGE 1: DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="eyebrow">Water Intelligence Platform · California</div>
+      <h1>Water <em>Availability</em><br>Intelligence</h1>
+      <p class="hero-sub">Real-time WAI analysis combining snowpack, precipitation, and reservoir data to forecast water stress across California regions.</p>
+    </div>
+  </div>
+
+  <div class="kpi-row" id="kpi-row"></div>
+  <div class="divider"></div>
+
+  <div class="section-header">
+    <div class="section-title">WAI Trend · 2016–2025</div>
+    <div class="section-meta">Water Availability Index (0–100) · Monthly</div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Historical WAI + Component Trends</h3>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Current WAI Score</h3>
+      <div class="wai-gauge" id="wai-gauge">
+        <div class="gauge-ring">
+          <svg class="gauge-svg" viewBox="0 0 160 160">
+            <circle class="gauge-track" cx="80" cy="80" r="64"/>
+            <circle class="gauge-fill" id="gauge-fill" cx="80" cy="80" r="64" stroke-dasharray="402" stroke-dashoffset="402"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-number" id="gauge-num">--</div>
+            <div class="gauge-unit">WAI</div>
+          </div>
+        </div>
+        <div class="wai-label">Current Index</div>
+        <div class="wai-status" id="wai-status">Loading...</div>
+        <div class="wai-breakdown" id="wai-breakdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid" style="grid-template-columns:1fr 1fr;">
+    <div class="chart-card">
+      <h3>30-Day Prediction</h3>
+      <div class="chart-wrap" style="height:200px;"><canvas id="predChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Recent Monthly Data</h3>
+      <table class="trend-table">
+        <thead><tr><th>Date</th><th>Snowpack</th><th>Precip</th><th>Reservoir</th><th>WAI</th></tr></thead>
+        <tbody id="trend-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: MAP -->
+<div class="page" id="page-map">
+  <div class="gmap-container" id="gmap-container">
+    <div class="gmap-base"></div>
+    <div class="gmap-water"></div>
+    <div class="gmap-land"></div>
+    <div class="gmap-roads"></div>
+    <div class="gmap-vignette"></div>
+    <svg id="map-svg" viewBox="0 0 800 900" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="gmap-searchbar">
+      <div class="gmap-search-wrap">
+        <svg class="gmap-search-icon" width="16" height="16" fill="none" stroke="#5f6368" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="gmap-search-input" type="text" placeholder="Search California water regions">
+      </div>
+    </div>
+    <div class="gmap-layers">
+      <button class="layer-pill active" onclick="setLayer(this,'wai')">WAI Score</button>
+      <button class="layer-pill" onclick="setLayer(this,'reservoir')">Reservoir</button>
+      <button class="layer-pill" onclick="setLayer(this,'snowpack')">Snowpack</button>
+      <button class="layer-pill" onclick="setLayer(this,'precip')">Precipitation</button>
+    </div>
+    <div class="gmap-type">
+      <button class="type-btn active">Map</button>
+      <button class="type-btn">Satellite</button>
+      <button class="type-btn">Terrain</button>
+    </div>
+    <div class="gmap-zoom">
+      <button class="zoom-btn">+</button>
+      <button class="zoom-btn">−</button>
+    </div>
+    <div class="gmap-compass">🧭</div>
+    <div class="gmap-scale">
+      <div class="scale-bar"></div>
+      <div class="scale-label">50 mi</div>
+    </div>
+    <div class="gmap-attrib">© Hydrous Tech · Data: H2O Hackathon</div>
+    <div class="map-tooltip" id="map-tooltip">
+      <div class="tt-title" id="tt-title"></div>
+      <div class="tt-row"><span>WAI Score</span><span class="tt-val" id="tt-wai"></span></div>
+      <div class="tt-row"><span>Status</span><span class="tt-val" id="tt-status"></span></div>
+      <div class="tt-row"><span>Reservoir</span><span class="tt-val" id="tt-res"></span></div>
+      <div class="tt-row"><span>Snowpack</span><span class="tt-val" id="tt-snow"></span></div>
+    </div>
+    <div class="gmap-chips" id="gmap-chips"></div>
+    <div class="gmap-panel" id="gmap-panel">
+      <div class="panel-header">
+        <button class="panel-close" onclick="closePanel()">✕</button>
+        <div class="panel-region-name" id="p-name">—</div>
+        <div class="panel-region-sub" id="p-sub">California · Water Region</div>
+        <div class="panel-wai-chip" id="p-chip">—</div>
+      </div>
+      <div class="panel-body">
+        <div class="panel-wai-section">
+          <div class="panel-wai-big" id="p-wai-big">—</div>
+          <div class="panel-wai-meta">
+            <div class="panel-wai-label">WAI Score / 100</div>
+            <div class="panel-wai-status" id="p-status">—</div>
+            <div style="font-size:.7rem;color:#9aa0a6;">30d forecast: <span id="p-pred" style="color:white;font-weight:600;">—</span></div>
+          </div>
+        </div>
+        <div class="panel-stats-row">
+          <div class="panel-stat"><div class="panel-stat-val" id="p-snow">—</div><div class="panel-stat-label">Snowpack %</div></div>
+          <div class="panel-stat"><div class="panel-stat-val" id="p-precip">—</div><div class="panel-stat-label">Precip %</div></div>
+          <div class="panel-stat"><div class="panel-stat-val" id="p-res">—</div><div class="panel-stat-label">Reservoir %</div></div>
+        </div>
+        <div class="panel-metrics">
+          <div class="panel-section-title">Component Breakdown</div>
+          <div class="pm-row"><div class="pm-icon">❄️</div><div class="pm-info">
+            <div class="pm-label"><span>Snowpack</span><span id="pm-snow-val">—</span></div>
+            <div class="pm-bar"><div class="pm-bar-fill" id="pm-snow-bar" style="background:#00d4ff"></div></div>
+          </div></div>
+          <div class="pm-row"><div class="pm-icon">🌧️</div><div class="pm-info">
+            <div class="pm-label"><span>Precipitation</span><span id="pm-precip-val">—</span></div>
+            <div class="pm-bar"><div class="pm-bar-fill" id="pm-precip-bar" style="background:#7b8cde"></div></div>
+          </div></div>
+          <div class="pm-row"><div class="pm-icon">🏞️</div><div class="pm-info">
+            <div class="pm-label"><span>Reservoir</span><span id="pm-res-val">—</span></div>
+            <div class="pm-bar"><div class="pm-bar-fill" id="pm-res-bar" style="background:#ffb800"></div></div>
+          </div></div>
+        </div>
+        <div class="panel-prediction">
+          <div class="panel-section-title">30-Day Forecast</div>
+          <div class="pred-timeline">
+            <div class="pred-tick"><div class="pred-tick-val" id="p-pred10">—</div><div class="pred-tick-label">+10 days</div></div>
+            <div class="pred-tick"><div class="pred-tick-val" id="p-pred20">—</div><div class="pred-tick-label">+20 days</div></div>
+            <div class="pred-tick"><div class="pred-tick-val" id="p-pred30">—</div><div class="pred-tick-label">+30 days</div></div>
+          </div>
+        </div>
+        <div id="p-health"></div>
+        <div class="panel-actions">
+          <button class="panel-action-btn"><span>📊</span>Analytics</button>
+          <button class="panel-action-btn" onclick="showPage('chat')"><span>💬</span>Ask AI</button>
+          <button class="panel-action-btn"><span>📥</span>Export</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: ANALYTICS -->
+<div class="page" id="page-analytics">
+  <div class="analytics-page">
+    <div class="page-title-block" style="padding:0 0 0 0;">
+      <h2>Deep Analytics</h2>
+      <p>Year-over-year comparison, seasonal patterns, and component correlations from 2016–2025.</p>
+    </div>
+    <div class="year-selector" id="year-selector"></div>
+    <div class="analytics-full">
+      <div class="chart-card">
+        <h3>Year-over-Year WAI Comparison</h3>
+        <div class="chart-wrap" style="height:300px;"><canvas id="yoyChart"></canvas></div>
+      </div>
+    </div>
+    <div class="analytics-grid">
+      <div class="chart-card">
+        <h3>Seasonal Snowpack Pattern</h3>
+        <div class="chart-wrap" style="height:220px;"><canvas id="snowChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Precipitation Distribution</h3>
+        <div class="chart-wrap" style="height:220px;"><canvas id="precipChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Reservoir Levels</h3>
+        <div class="chart-wrap" style="height:220px;"><canvas id="resChart"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-card analytics-full">
+      <h3>WAI Weight Breakdown Over Time</h3>
+      <div class="chart-wrap" style="height:260px;"><canvas id="stackedChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: CHAT -->
+<div class="page" id="page-chat">
+  <div class="chat-page">
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="chat-avatar">🤖</div>
+        <div class="chat-header-info">
+          <h3>HydroAdvisor AI</h3>
+          <p>Powered by Anthropic Claude · Water Intelligence Engine</p>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:1rem;">
+          <button onclick="clearChat()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:.68rem;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Clear Chat</button>
+          <div class="nav-status"><div class="pulse-dot"></div> Online</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">
+          <div class="msg-avatar">💧</div>
+          <div class="msg-bubble">
+            Hello! I'm <strong>HydroAdvisor</strong>, your water intelligence assistant. I have access to California's real-time WAI data — including snowpack, precipitation, and reservoir levels from 2016 to 2025.<br><br>
+            Ask me anything about water availability, drought risk, health impacts, or conservation strategies. Try a quick prompt on the right! 👉
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" placeholder="Ask about water availability, drought risk, health effects..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+        <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="quick-prompts">
+      <h3>Quick Prompts</h3>
+      <div class="prompt-section-label">Status & Analysis</div>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What is the current WAI score and what does it mean?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">Why is snowpack important for water availability?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">Which year had the best water conditions?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What was the worst drought period in the data?</button>
+      <div class="prompt-section-label">Predictions</div>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What will the WAI be in 30 days?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">Is water stress expected to increase or decrease?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">When is water availability typically at its peak?</button>
+      <div class="prompt-section-label">Health & Action</div>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What are the health risks when WAI is low?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">How does dehydration affect the cardiovascular system?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What can I do to conserve water right now?</button>
+      <button class="prompt-chip" onclick="sendPrompt(this.textContent)">What emergency measures should be taken in a drought?</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+// DATA & WAI ENGINE
+// ══════════════════════════════
+const RAW_DATA = [{"Date":"12/1/25","Snowpack":"65","Precip":"105","Reservoir":"72"},{"Date":"11/1/25","Snowpack":"25","Precip":"95","Reservoir":"75"},{"Date":"10/1/25","Snowpack":"8","Precip":"85","Reservoir":"78"},{"Date":"9/1/25","Snowpack":"3","Precip":"90","Reservoir":"80"},{"Date":"8/1/25","Snowpack":"5","Precip":"95","Reservoir":"83"},{"Date":"7/1/25","Snowpack":"12","Precip":"100","Reservoir":"88"},{"Date":"6/1/25","Snowpack":"40","Precip":"105","Reservoir":"92"},{"Date":"5/1/25","Snowpack":"75","Precip":"110","Reservoir":"94"},{"Date":"4/1/25","Snowpack":"110","Precip":"105","Reservoir":"90"},{"Date":"3/1/25","Snowpack":"120","Precip":"110","Reservoir":"85"},{"Date":"2/1/25","Snowpack":"105","Precip":"115","Reservoir":"80"},{"Date":"1/1/25","Snowpack":"90","Precip":"110","Reservoir":"75"},{"Date":"12/1/24","Snowpack":"60","Precip":"95","Reservoir":"70"},{"Date":"11/1/24","Snowpack":"20","Precip":"85","Reservoir":"72"},{"Date":"10/1/24","Snowpack":"6","Precip":"80","Reservoir":"75"},{"Date":"9/1/24","Snowpack":"3","Precip":"85","Reservoir":"78"},{"Date":"8/1/24","Snowpack":"5","Precip":"90","Reservoir":"80"},{"Date":"7/1/24","Snowpack":"10","Precip":"95","Reservoir":"85"},{"Date":"6/1/24","Snowpack":"35","Precip":"100","Reservoir":"88"},{"Date":"5/1/24","Snowpack":"70","Precip":"105","Reservoir":"90"},{"Date":"4/1/24","Snowpack":"95","Precip":"100","Reservoir":"88"},{"Date":"3/1/24","Snowpack":"105","Precip":"95","Reservoir":"82"},{"Date":"2/1/24","Snowpack":"100","Precip":"90","Reservoir":"78"},{"Date":"1/1/24","Snowpack":"85","Precip":"85","Reservoir":"75"},{"Date":"12/1/23","Snowpack":"75","Precip":"120","Reservoir":"80"},{"Date":"11/1/23","Snowpack":"30","Precip":"115","Reservoir":"82"},{"Date":"10/1/23","Snowpack":"10","Precip":"110","Reservoir":"85"},{"Date":"9/1/23","Snowpack":"5","Precip":"105","Reservoir":"88"},{"Date":"8/1/23","Snowpack":"6","Precip":"100","Reservoir":"90"},{"Date":"7/1/23","Snowpack":"15","Precip":"100","Reservoir":"95"},{"Date":"6/1/23","Snowpack":"50","Precip":"110","Reservoir":"98"},{"Date":"5/1/23","Snowpack":"90","Precip":"120","Reservoir":"100"},{"Date":"4/1/23","Snowpack":"150","Precip":"130","Reservoir":"100"},{"Date":"3/1/23","Snowpack":"170","Precip":"140","Reservoir":"98"},{"Date":"2/1/23","Snowpack":"160","Precip":"150","Reservoir":"95"},{"Date":"1/1/23","Snowpack":"140","Precip":"145","Reservoir":"90"},{"Date":"12/1/22","Snowpack":"50","Precip":"85","Reservoir":"65"},{"Date":"11/1/22","Snowpack":"18","Precip":"80","Reservoir":"67"},{"Date":"10/1/22","Snowpack":"5","Precip":"75","Reservoir":"70"},{"Date":"9/1/22","Snowpack":"3","Precip":"80","Reservoir":"72"},{"Date":"8/1/22","Snowpack":"5","Precip":"85","Reservoir":"75"},{"Date":"7/1/22","Snowpack":"10","Precip":"90","Reservoir":"78"},{"Date":"6/1/22","Snowpack":"30","Precip":"85","Reservoir":"80"},{"Date":"5/1/22","Snowpack":"55","Precip":"80","Reservoir":"78"},{"Date":"4/1/22","Snowpack":"70","Precip":"75","Reservoir":"75"},{"Date":"3/1/22","Snowpack":"65","Precip":"70","Reservoir":"70"},{"Date":"2/1/22","Snowpack":"60","Precip":"65","Reservoir":"68"},{"Date":"1/1/22","Snowpack":"55","Precip":"60","Reservoir":"65"},{"Date":"12/1/21","Snowpack":"45","Precip":"75","Reservoir":"60"},{"Date":"11/1/21","Snowpack":"15","Precip":"70","Reservoir":"62"},{"Date":"10/1/21","Snowpack":"4","Precip":"65","Reservoir":"65"},{"Date":"9/1/21","Snowpack":"3","Precip":"70","Reservoir":"68"},{"Date":"8/1/21","Snowpack":"5","Precip":"75","Reservoir":"70"},{"Date":"7/1/21","Snowpack":"10","Precip":"80","Reservoir":"72"},{"Date":"6/1/21","Snowpack":"25","Precip":"75","Reservoir":"75"},{"Date":"5/1/21","Snowpack":"50","Precip":"70","Reservoir":"70"},{"Date":"4/1/21","Snowpack":"65","Precip":"65","Reservoir":"68"},{"Date":"3/1/21","Snowpack":"60","Precip":"60","Reservoir":"65"},{"Date":"2/1/21","Snowpack":"55","Precip":"55","Reservoir":"63"},{"Date":"1/1/21","Snowpack":"50","Precip":"50","Reservoir":"60"},{"Date":"12/1/20","Snowpack":"55","Precip":"80","Reservoir":"65"},{"Date":"11/1/20","Snowpack":"18","Precip":"75","Reservoir":"68"},{"Date":"10/1/20","Snowpack":"5","Precip":"70","Reservoir":"70"},{"Date":"9/1/20","Snowpack":"3","Precip":"75","Reservoir":"72"},{"Date":"8/1/20","Snowpack":"5","Precip":"80","Reservoir":"75"},{"Date":"7/1/20","Snowpack":"10","Precip":"85","Reservoir":"78"},{"Date":"6/1/20","Snowpack":"30","Precip":"80","Reservoir":"80"},{"Date":"5/1/20","Snowpack":"60","Precip":"75","Reservoir":"78"},{"Date":"4/1/20","Snowpack":"80","Precip":"70","Reservoir":"75"},{"Date":"3/1/20","Snowpack":"85","Precip":"65","Reservoir":"70"},{"Date":"2/1/20","Snowpack":"80","Precip":"60","Reservoir":"68"},{"Date":"1/1/20","Snowpack":"70","Precip":"65","Reservoir":"65"},{"Date":"12/1/19","Snowpack":"65","Precip":"95","Reservoir":"70"},{"Date":"11/1/19","Snowpack":"22","Precip":"90","Reservoir":"72"},{"Date":"10/1/19","Snowpack":"7","Precip":"85","Reservoir":"75"},{"Date":"9/1/19","Snowpack":"3","Precip":"90","Reservoir":"78"},{"Date":"8/1/19","Snowpack":"5","Precip":"95","Reservoir":"80"},{"Date":"7/1/19","Snowpack":"12","Precip":"100","Reservoir":"85"},{"Date":"6/1/19","Snowpack":"45","Precip":"105","Reservoir":"88"},{"Date":"5/1/19","Snowpack":"85","Precip":"110","Reservoir":"90"},{"Date":"4/1/19","Snowpack":"120","Precip":"115","Reservoir":"88"},{"Date":"3/1/19","Snowpack":"130","Precip":"120","Reservoir":"82"},{"Date":"2/1/19","Snowpack":"125","Precip":"115","Reservoir":"78"},{"Date":"1/1/19","Snowpack":"110","Precip":"110","Reservoir":"75"},{"Date":"12/1/18","Snowpack":"60","Precip":"90","Reservoir":"68"},{"Date":"11/1/18","Snowpack":"20","Precip":"85","Reservoir":"70"},{"Date":"10/1/18","Snowpack":"6","Precip":"80","Reservoir":"72"},{"Date":"9/1/18","Snowpack":"3","Precip":"85","Reservoir":"75"},{"Date":"8/1/18","Snowpack":"5","Precip":"90","Reservoir":"78"},{"Date":"7/1/18","Snowpack":"10","Precip":"95","Reservoir":"80"},{"Date":"6/1/18","Snowpack":"35","Precip":"90","Reservoir":"82"},{"Date":"5/1/18","Snowpack":"65","Precip":"85","Reservoir":"80"},{"Date":"4/1/18","Snowpack":"90","Precip":"80","Reservoir":"78"},{"Date":"3/1/18","Snowpack":"95","Precip":"85","Reservoir":"75"},{"Date":"2/1/18","Snowpack":"90","Precip":"80","Reservoir":"72"},{"Date":"1/1/18","Snowpack":"80","Precip":"75","Reservoir":"70"},{"Date":"12/1/17","Snowpack":"60","Precip":"100","Reservoir":"75"},{"Date":"11/1/17","Snowpack":"18","Precip":"95","Reservoir":"78"},{"Date":"10/1/17","Snowpack":"4","Precip":"90","Reservoir":"80"},{"Date":"9/1/17","Snowpack":"3","Precip":"95","Reservoir":"85"},{"Date":"8/1/17","Snowpack":"5","Precip":"100","Reservoir":"90"},{"Date":"7/1/17","Snowpack":"12","Precip":"100","Reservoir":"98"},{"Date":"6/1/17","Snowpack":"45","Precip":"105","Reservoir":"100"},{"Date":"5/1/17","Snowpack":"90","Precip":"110","Reservoir":"100"},{"Date":"4/1/17","Snowpack":"140","Precip":"120","Reservoir":"95"},{"Date":"3/1/17","Snowpack":"165","Precip":"130","Reservoir":"88"},{"Date":"2/1/17","Snowpack":"150","Precip":"140","Reservoir":"78"},{"Date":"1/1/17","Snowpack":"120","Precip":"135","Reservoir":"70"},{"Date":"12/1/16","Snowpack":"55","Precip":"95","Reservoir":"63"},{"Date":"11/1/16","Snowpack":"20","Precip":"90","Reservoir":"68"},{"Date":"10/1/16","Snowpack":"5","Precip":"85","Reservoir":"72"},{"Date":"9/1/16","Snowpack":"3","Precip":"90","Reservoir":"78"},{"Date":"8/1/16","Snowpack":"5","Precip":"95","Reservoir":"82"},{"Date":"7/1/16","Snowpack":"10","Precip":"100","Reservoir":"86"},{"Date":"6/1/16","Snowpack":"40","Precip":"105","Reservoir":"88"},{"Date":"5/1/16","Snowpack":"80","Precip":"110","Reservoir":"85"},{"Date":"4/1/16","Snowpack":"105","Precip":"105","Reservoir":"78"},{"Date":"3/1/16","Snowpack":"110","Precip":"100","Reservoir":"70"},{"Date":"2/1/16","Snowpack":"95","Precip":"105","Reservoir":"62"},{"Date":"1/1/16","Snowpack":"75","Precip":"100","Reservoir":"58"}];
+
+const SNOW_MAX=170, PRECIP_MAX=150, RES_MAX=100;
+const W_SNOW=0.30, W_PRECIP=0.30, W_RES=0.40;
+
+function computeWAI(row) {
+  const s=Math.min(+row.Snowpack/SNOW_MAX,1);
+  const p=Math.min(+row.Precip/PRECIP_MAX,1);
+  const r=Math.min(+row.Reservoir/RES_MAX,1);
+  return Math.round((W_SNOW*s+W_PRECIP*p+W_RES*r)*100);
+}
+const DATA = RAW_DATA.map(d=>({...d,snow:+d.Snowpack,precip:+d.Precip,res:+d.Reservoir,wai:computeWAI(d)})).reverse();
+
+function waiColor(wai){return wai>=70?'#00ff9d':wai>=40?'#ffb800':'#ff4444';}
+function waiLabel(wai){return wai>=70?'SAFE':wai>=40?'CAUTION':'CRITICAL';}
+function predictWAI(months=1){
+  const r=DATA.slice(-6).map(d=>d.wai),n=r.length;
+  const slope=(r[n-1]-r[0])/(n-1);
+  return Math.max(0,Math.min(100,Math.round(DATA[DATA.length-1].wai+slope*months)));
+}
+
+function updateTime(){
+  const now=new Date();
+  document.getElementById('live-time').textContent=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+updateTime(); setInterval(updateTime,30000);
+
+// ══ PAGE NAV ══
+let chartsInit={};
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(n=>{
+    if(n.textContent.toLowerCase().includes(name==='dashboard'?'dash':name==='map'?'map':name==='analytics'?'anal':'ai'))
+      n.classList.add('active');
+  });
+  if(!chartsInit[name]){chartsInit[name]=true;
+    if(name==='dashboard')initDashboard();
+    if(name==='map')initMap();
+    if(name==='analytics')initAnalytics();
+  }
+}
+
+// ══ DASHBOARD ══
+function initDashboard(){
+  const latest=DATA[DATA.length-1],prev=DATA[DATA.length-2],wai=latest.wai;
+  const kpiData=[
+    {label:'WAI Score',value:wai,unit:'/ 100',badge:waiLabel(wai),badgeClass:wai>=70?'badge-safe':wai>=40?'badge-warn':'badge-danger',color:waiColor(wai),sub:`${wai>prev.wai?'▲':'▼'}${Math.abs(wai-prev.wai)} vs last month`},
+    {label:'Snowpack',value:latest.snow,unit:'% of avg',badge:latest.snow>=80?'ABOVE AVG':'BELOW AVG',badgeClass:latest.snow>=80?'badge-safe':'badge-warn',color:'#00d4ff',sub:`Max recorded: ${SNOW_MAX}%`},
+    {label:'Precipitation',value:latest.precip,unit:'% of avg',badge:latest.precip>=100?'NORMAL':'LOW',badgeClass:latest.precip>=100?'badge-safe':'badge-warn',color:'#7b8cde',sub:'Baseline: 100%'},
+    {label:'Reservoir',value:latest.res+'%',unit:'capacity',badge:latest.res>=70?'HEALTHY':latest.res>=40?'LOW':'CRITICAL',badgeClass:latest.res>=70?'badge-safe':latest.res>=40?'badge-warn':'badge-danger',color:'#ffb800',sub:`30d pred: ${predictWAI(1)} WAI`}
+  ];
+  document.getElementById('kpi-row').innerHTML=kpiData.map(k=>`
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+      <div class="kpi-sub">${k.unit} · ${k.sub}</div>
+      <div class="kpi-badge ${k.badgeClass}">${k.badge}</div>
+    </div>`).join('');
+
+  setTimeout(()=>{
+    const fill=document.getElementById('gauge-fill');
+    fill.style.stroke=waiColor(wai);
+    fill.style.strokeDashoffset=402-(wai/100)*402;
+    document.getElementById('gauge-num').textContent=wai;
+    document.getElementById('gauge-num').style.color=waiColor(wai);
+    document.getElementById('wai-status').textContent=waiLabel(wai);
+    document.getElementById('wai-status').style.color=waiColor(wai);
+    const sn=Math.round(latest.snow/SNOW_MAX*100),pr=Math.round(latest.precip/PRECIP_MAX*100);
+    document.getElementById('wai-breakdown').innerHTML=`
+      <div class="breakdown-row"><div class="breakdown-label">Snow</div><div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${sn}%;background:#00d4ff"></div></div></div><div class="breakdown-val">${sn}%</div></div>
+      <div class="breakdown-row"><div class="breakdown-label">Precip</div><div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${pr}%;background:#7b8cde"></div></div></div><div class="breakdown-val">${pr}%</div></div>
+      <div class="breakdown-row"><div class="breakdown-label">Reservoir</div><div class="breakdown-bar-wrap"><div class="breakdown-bar"><div class="breakdown-bar-fill" style="width:${latest.res}%;background:#ffb800"></div></div></div><div class="breakdown-val">${latest.res}%</div></div>`;
+  },100);
+
+  new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:DATA.map(d=>d.Date),datasets:[
+    {label:'WAI',data:DATA.map(d=>d.wai),borderColor:'#00d4ff',backgroundColor:'rgba(0,212,255,.06)',borderWidth:2,pointRadius:0,tension:.4,fill:true},
+    {label:'Reservoir %',data:DATA.map(d=>d.res),borderColor:'#ffb800',borderWidth:1.5,pointRadius:0,tension:.4,borderDash:[4,3]},
+    {label:'Snowpack (norm)',data:DATA.map(d=>Math.round(d.snow/SNOW_MAX*100)),borderColor:'rgba(0,212,255,.5)',borderWidth:1,pointRadius:0,tension:.4,borderDash:[2,4]}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#5a8a9f',font:{family:'DM Mono',size:11}}}},scales:{x:{ticks:{color:'#5a8a9f',maxTicksLimit:12,font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.5)'}},y:{ticks:{color:'#5a8a9f',font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.5)'},min:0,max:100}}}});
+
+  const rL=DATA.slice(-6).map(d=>d.Date),rW=DATA.slice(-6).map(d=>d.wai);
+  new Chart(document.getElementById('predChart'),{type:'line',data:{labels:[...rL,'+30d','+60d','+90d'],datasets:[
+    {label:'Historical WAI',data:[...rW,null,null,null],borderColor:'#00d4ff',borderWidth:2,pointRadius:3,tension:.4},
+    {label:'Predicted WAI',data:[...Array(6).fill(null).map((_,i)=>i===5?rW[5]:null),predictWAI(1),predictWAI(2),predictWAI(3)],borderColor:'#ffb800',borderWidth:2,borderDash:[6,3],pointRadius:4,tension:.4,pointBackgroundColor:'#ffb800'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#5a8a9f',font:{family:'DM Mono',size:11}}}},scales:{x:{ticks:{color:'#5a8a9f',font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.4)'}},y:{ticks:{color:'#5a8a9f',font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.4)'},min:0,max:100}}}});
+
+  document.getElementById('trend-tbody').innerHTML=DATA.slice(-8).reverse().map(d=>`<tr><td>${d.Date}</td><td>${d.snow}%</td><td>${d.precip}%</td><td>${d.res}%</td><td style="color:${waiColor(d.wai)};font-weight:600">${d.wai}</td></tr>`).join('');
+}
+
+// ══ MAP PAGE ══
+const REGIONS = [
+  {name:'Northern Sierra',     cx:540, cy:175, county:'Plumas / Sierra Co.'},
+  {name:'Sacramento Valley',   cx:350, cy:240, county:'Sacramento / Yolo Co.'},
+  {name:'Bay Area',            cx:230, cy:350, county:'San Francisco Bay Area'},
+  {name:'Central Valley',      cx:380, cy:390, county:'Fresno / Tulare Co.'},
+  {name:'San Joaquin',         cx:400, cy:470, county:'San Joaquin / Stanislaus Co.'},
+  {name:'Southern Sierra',     cx:540, cy:450, county:'Tulare / Inyo Co.'},
+  {name:'Los Angeles Basin',   cx:330, cy:640, county:'Los Angeles Co.'},
+  {name:'Inland Empire',       cx:450, cy:660, county:'Riverside / San Bernardino Co.'},
+  {name:'Coachella Valley',    cx:540, cy:700, county:'Riverside Co.'},
+  {name:'San Diego',           cx:370, cy:770, county:'San Diego Co.'},
+];
+
+const MULTIPLIERS = {
+  'Northern Sierra':    {sm:1.3,pm:1.1,rm:0.95},
+  'Sacramento Valley':  {sm:0.5,pm:1.0,rm:1.05},
+  'Bay Area':           {sm:0.2,pm:1.05,rm:0.9},
+  'Central Valley':     {sm:0.4,pm:0.9,rm:1.0},
+  'San Joaquin':        {sm:0.3,pm:0.85,rm:0.85},
+  'Southern Sierra':    {sm:0.8,pm:0.95,rm:0.9},
+  'Los Angeles Basin':  {sm:0.1,pm:0.7,rm:0.65},
+  'Inland Empire':      {sm:0.1,pm:0.75,rm:0.7},
+  'Coachella Valley':   {sm:0.02,pm:0.5,rm:0.45},
+  'San Diego':          {sm:0.05,pm:0.65,rm:0.6},
+};
+
+function getRegionData(name){
+  const l=DATA[DATA.length-1],m=MULTIPLIERS[name]||{sm:1,pm:1,rm:1};
+  const snow=Math.min(SNOW_MAX,Math.round(l.snow*m.sm));
+  const precip=Math.min(PRECIP_MAX,Math.round(l.precip*m.pm));
+  const res=Math.min(100,Math.round(l.res*m.rm));
+  return {snow,precip,res,wai:computeWAI({Snowpack:snow,Precip:precip,Reservoir:res})};
+}
+
+let currentLayer='wai';
+function setLayer(btn,layer){
+  document.querySelectorAll('.layer-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); currentLayer=layer;
+  renderMapPins();
+}
+
+function getLayerValue(rd,layer){
+  if(layer==='reservoir') return rd.res;
+  if(layer==='snowpack') return Math.round(rd.snow/SNOW_MAX*100);
+  if(layer==='precip') return Math.round(rd.precip/PRECIP_MAX*100);
+  return rd.wai;
+}
+
+function initMap(){
+  const svgEl=document.getElementById('map-svg');
+  const NS='http://www.w3.org/2000/svg';
+
+  const caOutlinePath = `M 610,38 L 620,58 L 627,80 L 632,105 L 636,128 L 640,150 L 643,172 L 645,192 L 646,210 L 645,228 L 643,247 L 640,265 L 636,284 L 631,302 L 625,320 L 619,337 L 613,353 L 607,369 L 601,385 L 596,400 L 591,416 L 586,432 L 581,448 L 576,464 L 571,480 L 567,496 L 562,512 L 558,527 L 554,542 L 550,556 L 546,570 L 542,583 L 538,595 L 534,607 L 530,618 L 526,629 L 522,640 L 518,650 L 514,660 L 510,670 L 506,680 L 503,690 L 500,700 L 497,710 L 494,720 L 491,730 L 489,740 L 487,750 L 485,760 L 484,770 L 483,780 L 482,790 L 481,800 L 480,810 L 478,820 L 475,828 L 470,834 L 463,838 L 454,840 L 443,840 L 432,838 L 420,834 L 408,829 L 396,824 L 385,819 L 374,814 L 362,810 L 350,807 L 337,805 L 323,804 L 308,804 L 293,805 L 278,807 L 265,811 L 254,818 L 246,828 L 240,838 L 237,848 L 236,856 L 238,862 L 242,866 L 249,868 L 258,868 L 268,866 L 279,861 L 289,855 L 298,847 L 304,838 L 307,828 L 307,817 L 304,806 L 298,795 L 290,784 L 280,774 L 269,763 L 257,753 L 244,743 L 231,733 L 218,722 L 205,712 L 192,702 L 179,691 L 166,680 L 153,669 L 140,658 L 128,647 L 116,635 L 105,622 L 95,608 L 87,594 L 81,578 L 77,561 L 74,543 L 73,524 L 73,504 L 75,483 L 79,461 L 85,438 L 93,415 L 103,391 L 115,367 L 129,343 L 144,320 L 159,297 L 174,275 L 188,254 L 201,234 L 212,214 L 220,195 L 225,176 L 226,158 L 224,140 L 219,124 L 211,109 L 201,96 L 190,84 L 180,73 L 172,63 L 167,53 L 165,43 L 166,34 L 170,26 L 178,20 L 188,17 L 202,16 L 219,17 L 239,19 L 262,22 L 287,24 L 315,26 L 344,27 L 374,27 L 404,27 L 434,26 L 463,25 L 492,25 L 520,25 L 547,26 L 572,28 L 593,32 Z`;
+
+  const caFill=document.createElementNS(NS,'path');
+  caFill.setAttribute('d',caOutlinePath);
+  caFill.setAttribute('fill','#16354a');
+  caFill.setAttribute('stroke','#2a6280');
+  caFill.setAttribute('stroke-width','2');
+  caFill.setAttribute('stroke-linejoin','round');
+  svgEl.appendChild(caFill);
+
+  const defs=document.createElementNS(NS,'defs');
+  const grad=document.createElementNS(NS,'linearGradient');
+  grad.setAttribute('id','terrainGrad');
+  grad.setAttribute('x1','0');grad.setAttribute('y1','0');grad.setAttribute('x2','1');grad.setAttribute('y2','1');
+  [{off:'0%',c:'#1e4a2e',op:'0.35'},{off:'50%',c:'#1a3a4a',op:'0.1'},{off:'100%',c:'#2a3a1e',op:'0.25'}].forEach(s=>{
+    const stop=document.createElementNS(NS,'stop');
+    stop.setAttribute('offset',s.off);stop.setAttribute('stop-color',s.c);stop.setAttribute('stop-opacity',s.op);
+    grad.appendChild(stop);
+  });
+  defs.appendChild(grad);
+  svgEl.appendChild(defs);
+
+  const terrainOverlay=document.createElementNS(NS,'path');
+  terrainOverlay.setAttribute('d',caOutlinePath);
+  terrainOverlay.setAttribute('fill','url(#terrainGrad)');
+  terrainOverlay.setAttribute('stroke','none');
+  svgEl.appendChild(terrainOverlay);
+
+  const clipDefs=document.createElementNS(NS,'defs');
+  const clipPath=document.createElementNS(NS,'clipPath');
+  clipPath.setAttribute('id','caClip');
+  const clipPathEl=document.createElementNS(NS,'path');
+  clipPathEl.setAttribute('d',caOutlinePath);
+  clipPath.appendChild(clipPathEl);
+  clipDefs.appendChild(clipPath);
+  svgEl.insertBefore(clipDefs,svgEl.firstChild);
+
+  const highways=[
+    {d:'M 350,240 L 380,390 L 400,470 L 370,640',color:'rgba(255,230,100,0.15)',w:2},
+    {d:'M 540,175 L 400,470 L 370,640 L 370,770',color:'rgba(255,230,100,0.1)',w:1.5},
+    {d:'M 230,350 L 380,390 L 540,450',color:'rgba(255,230,100,0.08)',w:1},
+    {d:'M 330,640 L 450,660 L 540,700 L 370,770',color:'rgba(255,230,100,0.08)',w:1},
+  ];
+  const hwGroup=document.createElementNS(NS,'g');
+  hwGroup.setAttribute('clip-path','url(#caClip)');
+  highways.forEach(h=>{
+    const line=document.createElementNS(NS,'path');
+    line.setAttribute('d',h.d);
+    line.setAttribute('fill','none');
+    line.setAttribute('stroke',h.color);
+    line.setAttribute('stroke-width',h.w);
+    hwGroup.appendChild(line);
+  });
+  svgEl.appendChild(hwGroup);
+
+  const oceanLabel=document.createElementNS(NS,'text');
+  oceanLabel.setAttribute('x','60');oceanLabel.setAttribute('y','420');
+  oceanLabel.setAttribute('fill','rgba(100,180,220,0.35)');
+  oceanLabel.setAttribute('font-size','13');
+  oceanLabel.setAttribute('font-family','Arial,sans-serif');
+  oceanLabel.setAttribute('font-style','italic');
+  oceanLabel.setAttribute('transform','rotate(-75, 60, 420)');
+  oceanLabel.textContent='PACIFIC OCEAN';
+  svgEl.appendChild(oceanLabel);
+
+  const stateLabel=document.createElementNS(NS,'text');
+  stateLabel.setAttribute('x','340');stateLabel.setAttribute('y','540');
+  stateLabel.setAttribute('fill','rgba(255,255,255,0.04)');
+  stateLabel.setAttribute('font-size','48');
+  stateLabel.setAttribute('font-family','Arial,sans-serif');
+  stateLabel.setAttribute('font-weight','bold');
+  stateLabel.setAttribute('text-anchor','middle');
+  stateLabel.textContent='CALIFORNIA';
+  svgEl.appendChild(stateLabel);
+
+  const pinsGroup=document.createElementNS(NS,'g');
+  pinsGroup.setAttribute('id','pins-group');
+  svgEl.appendChild(pinsGroup);
+
+  renderMapPins();
+
+  const chipsEl=document.getElementById('gmap-chips');
+  chipsEl.innerHTML=REGIONS.map(r=>{
+    const rd=getRegionData(r.name);
+    return `<div class="region-chip" onclick="openPanel('${r.name}')" id="chip-${r.name.replace(/\s/g,'-')}">
+      <div class="chip-dot" style="background:${waiColor(rd.wai)}"></div>${r.name}
+    </div>`;
+  }).join('');
+}
+
+function renderMapPins(){
+  const NS='http://www.w3.org/2000/svg';
+  const group=document.getElementById('pins-group');
+  if(!group)return;
+  group.innerHTML='';
+  const container=document.getElementById('gmap-container');
+  const tooltip=document.getElementById('map-tooltip');
+
+  REGIONS.forEach(region=>{
+    const rd=getRegionData(region.name);
+    const val=getLayerValue(rd,currentLayer);
+    const color=waiColor(val);
+
+    const g=document.createElementNS(NS,'g');
+    g.style.cursor='pointer';
+
+    const shadow=document.createElementNS(NS,'ellipse');
+    shadow.setAttribute('cx',region.cx);shadow.setAttribute('cy',region.cy+16);
+    shadow.setAttribute('rx','12');shadow.setAttribute('ry','4');
+    shadow.setAttribute('fill','rgba(0,0,0,0.3)');
+    g.appendChild(shadow);
+
+    const glow=document.createElementNS(NS,'circle');
+    glow.setAttribute('cx',region.cx);glow.setAttribute('cy',region.cy);
+    glow.setAttribute('r','24');
+    glow.setAttribute('fill',color);glow.setAttribute('fill-opacity','0.1');
+    g.appendChild(glow);
+
+    const ring=document.createElementNS(NS,'circle');
+    ring.setAttribute('cx',region.cx);ring.setAttribute('cy',region.cy);
+    ring.setAttribute('r','16');ring.setAttribute('fill','none');
+    ring.setAttribute('stroke',color);ring.setAttribute('stroke-width','1.5');
+    ring.setAttribute('stroke-opacity','0.5');
+    g.appendChild(ring);
+
+    const pinPath=document.createElementNS(NS,'path');
+    const px=region.cx, py=region.cy;
+    const pinD=`M ${px} ${py-14} C ${px+10} ${py-14} ${px+10} ${py} ${px} ${py+6} C ${px-10} ${py} ${px-10} ${py-14} ${px} ${py-14} Z`;
+    pinPath.setAttribute('d',pinD);
+    pinPath.setAttribute('fill',color);
+    pinPath.setAttribute('fill-opacity','0.92');
+    pinPath.setAttribute('stroke','#050d12');
+    pinPath.setAttribute('stroke-width','1.5');
+    g.appendChild(pinPath);
+
+    const pinDot=document.createElementNS(NS,'circle');
+    pinDot.setAttribute('cx',px);pinDot.setAttribute('cy',py-7);
+    pinDot.setAttribute('r','3');
+    pinDot.setAttribute('fill','rgba(5,13,18,0.6)');
+    g.appendChild(pinDot);
+
+    const lbg=document.createElementNS(NS,'rect');
+    const lw=region.name.length*5.2+12;
+    lbg.setAttribute('x',px-lw/2);lbg.setAttribute('y',py+10);
+    lbg.setAttribute('width',lw);lbg.setAttribute('height',15);
+    lbg.setAttribute('rx','4');
+    lbg.setAttribute('fill','rgba(5,13,18,0.82)');
+    lbg.setAttribute('stroke',color);lbg.setAttribute('stroke-width','0.5');
+    g.appendChild(lbg);
+
+    const label=document.createElementNS(NS,'text');
+    label.setAttribute('x',px);label.setAttribute('y',py+21);
+    label.setAttribute('text-anchor','middle');
+    label.setAttribute('fill','#c8e8f0');
+    label.setAttribute('font-size','7.5');
+    label.setAttribute('font-family','DM Mono,monospace');
+    label.textContent=region.name;
+    g.appendChild(label);
+
+    const valBg=document.createElementNS(NS,'rect');
+    valBg.setAttribute('x',px+12);valBg.setAttribute('y',py-26);
+    valBg.setAttribute('width','26');valBg.setAttribute('height','12');
+    valBg.setAttribute('rx','3');
+    valBg.setAttribute('fill',color);valBg.setAttribute('fill-opacity','0.95');
+    g.appendChild(valBg);
+
+    const valTxt=document.createElementNS(NS,'text');
+    valTxt.setAttribute('x',px+25);valTxt.setAttribute('y',py-17);
+    valTxt.setAttribute('text-anchor','middle');
+    valTxt.setAttribute('fill','#050d12');
+    valTxt.setAttribute('font-size','7');
+    valTxt.setAttribute('font-weight','800');
+    valTxt.setAttribute('font-family','DM Mono,monospace');
+    valTxt.textContent=val;
+    g.appendChild(valTxt);
+
+    g.addEventListener('mouseenter',e=>{
+      const rect=container.getBoundingClientRect();
+      tooltip.style.left=Math.min(e.clientX-rect.left+12,rect.width-200)+'px';
+      tooltip.style.top=Math.max(e.clientY-rect.top-80,10)+'px';
+      document.getElementById('tt-title').textContent=region.name;
+      document.getElementById('tt-wai').textContent=rd.wai+' / 100';
+      document.getElementById('tt-wai').style.color=waiColor(rd.wai);
+      document.getElementById('tt-status').textContent=waiLabel(rd.wai);
+      document.getElementById('tt-status').style.color=waiColor(rd.wai);
+      document.getElementById('tt-res').textContent=rd.res+'%';
+      document.getElementById('tt-snow').textContent=rd.snow+'%';
+      tooltip.classList.add('visible');
+    });
+    g.addEventListener('mouseleave',()=>tooltip.classList.remove('visible'));
+    g.addEventListener('click',()=>openPanel(region.name));
+
+    group.appendChild(g);
+  });
+}
+
+function openPanel(regionName){
+  const region=REGIONS.find(r=>r.name===regionName);
+  const rd=getRegionData(regionName);
+  const color=waiColor(rd.wai);
+
+  document.getElementById('p-name').textContent=regionName;
+  document.getElementById('p-sub').textContent=(region?.county||'California')+ ' · Water Region';
+  document.getElementById('p-chip').textContent=waiLabel(rd.wai)+' · WAI '+rd.wai;
+  document.getElementById('p-wai-big').textContent=rd.wai;
+  document.getElementById('p-wai-big').style.color=color;
+  document.getElementById('p-status').textContent=waiLabel(rd.wai);
+  document.getElementById('p-status').style.color=color;
+
+  const slope=(DATA[DATA.length-1].wai-DATA[DATA.length-4].wai)/3;
+  const pred30=Math.max(0,Math.min(100,Math.round(rd.wai+slope)));
+  document.getElementById('p-pred').textContent=pred30;
+  document.getElementById('p-pred').style.color=waiColor(pred30);
+
+  document.getElementById('p-snow').textContent=rd.snow+'%';
+  document.getElementById('p-precip').textContent=rd.precip+'%';
+  document.getElementById('p-res').textContent=rd.res+'%';
+
+  const snPct=Math.min(100,rd.snow/SNOW_MAX*100);
+  const prPct=Math.min(100,rd.precip/PRECIP_MAX*100);
+  document.getElementById('pm-snow-bar').style.width=snPct+'%';
+  document.getElementById('pm-snow-val').textContent=Math.round(snPct)+'%';
+  document.getElementById('pm-precip-bar').style.width=prPct+'%';
+  document.getElementById('pm-precip-val').textContent=Math.round(prPct)+'%';
+  document.getElementById('pm-res-bar').style.width=rd.res+'%';
+  document.getElementById('pm-res-val').textContent=rd.res+'%';
+
+  document.getElementById('p-pred10').textContent=Math.max(0,Math.min(100,Math.round(rd.wai+slope*0.33)));
+  document.getElementById('p-pred20').textContent=Math.max(0,Math.min(100,Math.round(rd.wai+slope*0.67)));
+  document.getElementById('p-pred30').textContent=pred30;
+  [document.getElementById('p-pred10'),document.getElementById('p-pred20'),document.getElementById('p-pred30')]
+    .forEach((el)=>{el.style.color=waiColor(+el.textContent);});
+
+  const hEl=document.getElementById('p-health');
+  if(rd.wai<40){
+    hEl.className='panel-health';
+    hEl.innerHTML='<strong>⚠️ High Health Risk:</strong> Low water availability increases dehydration risk. Cardiovascular strain (CO = HR × SV) rises. Limit outdoor exposure and increase fluid intake immediately.';
+  } else if(rd.wai<60){
+    hEl.className='panel-health warn';
+    hEl.innerHTML='<strong>⚠️ Moderate Caution:</strong> Water stress detected. Stay hydrated, especially during heat. Conserve household water where possible.';
+  } else {
+    hEl.innerHTML='';hEl.className='';
+  }
+
+  document.querySelectorAll('.region-chip').forEach(c=>c.classList.remove('active'));
+  const chipId='chip-'+regionName.replace(/\s/g,'-');
+  const chip=document.getElementById(chipId);
+  if(chip)chip.classList.add('active');
+
+  document.getElementById('gmap-panel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('gmap-panel').classList.remove('open');
+  document.querySelectorAll('.region-chip').forEach(c=>c.classList.remove('active'));
+}
+
+// ══ ANALYTICS ══
+function initAnalytics(){
+  const years=[...new Set(DATA.map(d=>'20'+d.Date.split('/')[2]))].sort();
+  document.getElementById('year-selector').innerHTML=
+    '<button class="year-btn active">ALL</button>'+
+    years.map(y=>`<button class="year-btn active">${y}</button>`).join('');
+  buildYoY(years); buildSeasonals(); buildStacked();
+}
+function buildYoY(years){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const colors=['#00d4ff','#00ff9d','#ffb800','#ff6b6b','#b388ff','#ff9a3c','#4dd0e1','#f06292','#aed581','#ff8a65'];
+  new Chart(document.getElementById('yoyChart'),{type:'line',data:{labels:months,datasets:years.map((year,i)=>{
+    const sy=year.slice(2),yd=Array(12).fill(null);
+    DATA.filter(d=>d.Date.includes('/'+sy)).forEach(d=>{yd[parseInt(d.Date.split('/')[0])-1]=d.wai;});
+    return {label:year,data:yd,borderColor:colors[i%colors.length],borderWidth:1.5,pointRadius:3,tension:.4,fill:false};
+  })},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#5a8a9f',font:{family:'DM Mono',size:10},boxWidth:16}}},scales:{x:{ticks:{color:'#5a8a9f',font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.4)'}},y:{ticks:{color:'#5a8a9f',font:{family:'DM Mono',size:10}},grid:{color:'rgba(26,53,69,.4)'},min:0,max:100}}}});
+}
+function buildSeasonals(){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function avgByMonth(key,maxVal){
+    return months.map((_,mo)=>{
+      const vals=DATA.filter(d=>parseInt(d.Date.split('/')[0])-1===mo).map(d=>d[key]);
+      return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length/maxVal*100):null;
+    });
+  }
+  const opts={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#5a8a9f',font:{size:9}},grid:{color:'rgba(26,53,69,.4)'}},y:{ticks:{color:'#5a8a9f',font:{size:9}},grid:{color:'rgba(26,53,69,.4)'}}}};
+  new Chart(document.getElementById('snowChart'),{type:'bar',data:{labels:months,datasets:[{label:'Avg Snowpack (norm%)',data:avgByMonth('snow',SNOW_MAX),backgroundColor:'rgba(0,212,255,.5)',borderColor:'#00d4ff',borderWidth:1}]},options:opts});
+  new Chart(document.getElementById('precipChart'),{type:'bar',data:{labels:months,datasets:[{label:'Avg Precip (norm%)',data:avgByMonth('precip',PRECIP_MAX),backgroundColor:'rgba(123,140,222,.5)',borderColor:'#7b8cde',borderWidth:1}]},options:opts});
+  new Chart(document.getElementById('resChart'),{type:'bar',data:{labels:months,datasets:[{label:'Avg Reservoir %',data:avgByMonth('res',RES_MAX),backgroundColor:'rgba(255,184,0,.4)',borderColor:'#ffb800',borderWidth:1}]},options:opts});
+}
+function buildStacked(){
+  new Chart(document.getElementById('stackedChart'),{type:'line',data:{labels:DATA.map(d=>d.Date),datasets:[
+    {label:'Snowpack contrib',data:DATA.map(d=>Math.round(W_SNOW*(d.snow/SNOW_MAX)*100)),backgroundColor:'rgba(0,212,255,.3)',borderColor:'rgba(0,212,255,.6)',borderWidth:1,fill:true,tension:.4},
+    {label:'Precip contrib',data:DATA.map(d=>Math.round(W_PRECIP*(d.precip/PRECIP_MAX)*100)),backgroundColor:'rgba(123,140,222,.3)',borderColor:'rgba(123,140,222,.6)',borderWidth:1,fill:true,tension:.4},
+    {label:'Reservoir contrib',data:DATA.map(d=>Math.round(W_RES*(d.res/RES_MAX)*100)),backgroundColor:'rgba(255,184,0,.3)',borderColor:'rgba(255,184,0,.6)',borderWidth:1,fill:true,tension:.4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#5a8a9f',font:{family:'DM Mono',size:11}}}},scales:{x:{ticks:{color:'#5a8a9f',maxTicksLimit:12,font:{size:10}},grid:{color:'rgba(26,53,69,.4)'}},y:{ticks:{color:'#5a8a9f',font:{size:10}},grid:{color:'rgba(26,53,69,.4)'},min:0,max:60}}}});
+}
+
+// ══ CHAT ENGINE ══
+// Conversation history (multi-turn)
+let conversationHistory = [];
+let isTyping = false;
+
+function buildSystemPrompt(){
+  const l=DATA[DATA.length-1], wai=l.wai, pred30=predictWAI(1);
+  const avgWAI=Math.round(DATA.reduce((s,d)=>s+d.wai,0)/DATA.length);
+  const maxWAI=Math.max(...DATA.map(d=>d.wai));
+  const minWAI=Math.min(...DATA.map(d=>d.wai));
+  const maxEntry=DATA.find(d=>d.wai===maxWAI);
+  const minEntry=DATA.find(d=>d.wai===minWAI);
+
+  // Build a recent trend summary
+  const recent6=DATA.slice(-6).map(d=>`${d.Date}:${d.wai}`).join(', ');
+
+  return `You are HydroAdvisor, an expert water intelligence assistant for Hydrous Tech — a California water monitoring platform. You help users understand water availability data, drought conditions, health impacts, and conservation strategies.
+
+LIVE PLATFORM DATA (December 2025):
+- Current WAI Score: ${wai}/100 → Status: ${waiLabel(wai)}
+- Snowpack: ${l.snow}% of historical average (max possible: ${SNOW_MAX}%)
+- Precipitation: ${l.precip}% of historical average (max possible: ${PRECIP_MAX}%)
+- Reservoir: ${l.res}% of capacity
+- 30-Day Predicted WAI: ${pred30}/100 → Status: ${waiLabel(pred30)}
+- 60-Day Predicted WAI: ${predictWAI(2)}/100
+- 90-Day Predicted WAI: ${predictWAI(3)}/100
+
+HISTORICAL DATASET (Jan 2016 – Dec 2025, 120 monthly records):
+- All-time high WAI: ${maxWAI}/100 (${maxEntry?.Date})
+- All-time low WAI: ${minWAI}/100 (${minEntry?.Date})
+- Historical average WAI: ${avgWAI}/100
+- Exceptional years: 2023 (peak WAI ~92 in spring after record snowpack), 2017 (strong recovery year)
+- Drought years: 2020–2022 (WAI consistently 45–65, low reservoir levels)
+- Recent 6-month WAI trend: ${recent6}
+
+WAI FORMULA: WAI = 0.30×(Snowpack/170) + 0.30×(Precip/150) + 0.40×(Reservoir/100) × 100
+STATUS THRESHOLDS: SAFE = 70–100 | CAUTION = 40–70 | CRITICAL = 0–40
+
+REGIONAL DATA (10 California regions tracked):
+- Northern Sierra, Sacramento Valley, Bay Area, Central Valley, San Joaquin, Southern Sierra, Los Angeles Basin, Inland Empire, Coachella Valley, San Diego
+- Southern CA regions (LA Basin, Inland Empire, Coachella Valley) have lower WAI due to minimal snowpack and lower precip multipliers
+
+HEALTH CONTEXT:
+- Low WAI (<40): High dehydration risk. Blood volume decreases → cardiac output (CO = HR × SV) drops → heart compensates with elevated HR. Kidney function affected. Heat illness risk rises sharply.
+- Moderate WAI (40–70): Caution warranted. Maintain hydration. Vulnerable populations (elderly, children, outdoor workers) at elevated risk.
+- High WAI (70+): Normal conditions. Standard hydration recommendations apply.
+
+YOUR ROLE:
+- Answer questions about current/historical water conditions with specific data
+- Explain WAI components and what drives changes
+- Provide health advice related to water stress and dehydration
+- Suggest practical conservation measures based on current conditions
+- Give 30/60/90-day outlooks
+- Be conversational but precise — always cite actual numbers from the data
+- Use **bold** for key metrics and numbers
+- Keep responses focused and practical (aim for 150-250 words unless more depth is requested)`;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  setInputDisabled(true);
+  addMessage('user', text);
+
+  // Add to conversation history
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildSystemPrompt(),
+        messages: conversationHistory
+      })
+    });
+
+    removeTyping();
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      const errMsg = errData?.error?.message || `API error (${response.status})`;
+      addMessage('bot', `⚠️ ${errMsg}`, true);
+      // Remove the failed user message from history
+      conversationHistory.pop();
+      setInputDisabled(false);
+      return;
+    }
+
+    const data = await response.json();
+    const assistantText = data.content?.map(c => c.text || '').join('') || 'Sorry, I could not generate a response. Please try again.';
+
+    // Add assistant response to history
+    conversationHistory.push({ role: 'assistant', content: assistantText });
+
+    addMessage('bot', assistantText);
+  } catch (err) {
+    removeTyping();
+    addMessage('bot', `⚠️ Connection error: ${err.message}. Please check your network and try again.`, true);
+    conversationHistory.pop();
+  }
+
+  setInputDisabled(false);
+  document.getElementById('chat-input').focus();
+}
+
+function sendPrompt(text) {
+  if (isTyping) return;
+  showPage('chat');
+  // Small delay to ensure page is shown
+  setTimeout(() => {
+    document.getElementById('chat-input').value = text;
+    sendMessage();
+  }, 50);
+}
+
+function setInputDisabled(disabled) {
+  isTyping = disabled;
+  const input = document.getElementById('chat-input');
+  const btn = document.getElementById('send-btn');
+  const chips = document.querySelectorAll('.prompt-chip');
+  input.disabled = disabled;
+  btn.disabled = disabled;
+  chips.forEach(c => c.disabled = disabled);
+}
+
+function addMessage(role, text, isError = false) {
+  const c = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  // Format the text: convert **bold** and newlines
+  const formatted = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+
+  div.innerHTML = `
+    <div class="msg-avatar">${role === 'bot' ? '💧' : '👤'}</div>
+    <div class="msg-bubble${isError ? ' error' : ''}">${formatted}</div>
+  `;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="msg-avatar">💧</div>
+    <div class="msg-bubble">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+  `;
+  c.appendChild(div);
+  c.scrollTop = c.scrollHeight;
+}
+
+function removeTyping() {
+  const e = document.getElementById('typing-msg');
+  if (e) e.remove();
+}
+
+function clearChat() {
+  conversationHistory = [];
+  const c = document.getElementById('chat-messages');
+  c.innerHTML = `
+    <div class="msg bot">
+      <div class="msg-avatar">💧</div>
+      <div class="msg-bubble">
+        Chat cleared. I'm <strong>HydroAdvisor</strong> — ready to help with California water intelligence. Ask me anything about WAI scores, drought conditions, health risks, or conservation strategies! 💧
+      </div>
+    </div>
+  `;
+}
+
+// Auto-resize textarea
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('chat-input');
+  if (input) {
+    input.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+  }
+});
+
+// ── INIT ──
+initDashboard(); chartsInit['dashboard'] = true;
+</script>
 </body>
 </html>
+
