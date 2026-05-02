@@ -1341,7 +1341,17 @@ document.addEventListener('DOMContentLoaded', () => {
 initDashboard(); chartsInit['dashboard'] = true;
 </script>
   <script src="config.js"></script>
-
+  
 <script src="script.js"></script>
+  // Inside your script.js
+const response = await fetch('https://api.anthropic.com/v1/messages', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': CONFIG.ANTHROPIC_API_KEY, // Use the variable here
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true',
+  },
+  // ... rest of your code
 </body>
 </html>
