@@ -1205,18 +1205,20 @@ async function sendMessage() {
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: buildSystemPrompt(),
-        messages: conversationHistory
-      })
-    });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': 'YOUR_ACTUAL_API_KEY_HERE', // Add this line
+    'anthropic-version': '2023-06-01',        // Add this line
+    'anthropic-dangerous-direct-browser-access': 'true',
+  },
+  body: JSON.stringify({
+    model: 'claude-3-5-sonnet-20240620', // Note: Ensure the model name is correct
+    max_tokens: 1000,
+    system: buildSystemPrompt(),
+    messages: conversationHistory
+  })
+});
 
     removeTyping();
 
